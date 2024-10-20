@@ -1,0 +1,54 @@
+using System;
+
+namespace TemplateMethodPattern
+{
+    public abstract class Beverage
+    {
+        public void PrepareRecipe()
+        {
+            BoilWater();    
+            Brew();         
+            PourInCup();    
+            if (CustomerWantsCondiments())
+            {
+                AddCondiments(); 
+            }
+        }
+        protected abstract void Brew();
+        protected abstract void AddCondiments();
+
+        private void BoilWater() => Console.WriteLine("Кипячение воды");
+        private void PourInCup() => Console.WriteLine("Наливание в чашку");
+
+        protected virtual bool CustomerWantsCondiments() => true;
+    }
+    public class Tea : Beverage
+    {
+        protected override void Brew() => Console.WriteLine("Заваривание чая");
+        protected override void AddCondiments() => Console.WriteLine("Добавление лимона");
+    }
+    public class Coffee : Beverage
+    {
+        protected override void Brew() => Console.WriteLine("Фильтрация кофе");
+        protected override void AddCondiments() => Console.WriteLine("Добавление сахара и молока");
+
+        protected override bool CustomerWantsCondiments()
+        {
+            Console.Write("Хотите добавить сахар и молоко (y/n)? ");
+            string input = Console.ReadLine();
+            return input.ToLower().StartsWith("y");
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            Beverage tea = new Tea();
+            tea.PrepareRecipe();
+
+            Beverage coffee = new Coffee();
+            coffee.PrepareRecipe();
+        }
+    }
+}
