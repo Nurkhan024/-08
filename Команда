@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+
+namespace CommandPattern
+{
+    public interface ICommand
+    {
+        void Execute();
+        void Undo();
+    }
+    public class Light
+    {
+        public void TurnOn() => Console.WriteLine("Свет включен");
+        public void TurnOff() => Console.WriteLine("Свет выключен");
+    }
+    public class Door
+    {
+        public void Open() => Console.WriteLine("Дверь открыта");
+        public void Close() => Console.WriteLine("Дверь закрыта");
+    }
+    public class Thermostat
+    {
+        public void IncreaseTemperature() => Console.WriteLine("Температура увеличена");
+        public void DecreaseTemperature() => Console.WriteLine("Температура уменьшена");
+    }
+    public class LightOnCommand : ICommand
+    {
+        private readonly Light _light;
+        public LightOnCommand(Light light) => _light = light;
+        public void Execute() => _light.TurnOn();
+        public void Undo() => _light.TurnOff();
+    }
+    public class DoorOpenCommand : ICommand
+    {
+        private readonly Door _door;
+        public DoorOpenCommand(Door door) => _door = door;
+        public void Execute() => _door.Open();
+        public void Undo() => _door.Close();
+    }
+    public class IncreaseTemperatureCommand : ICommand
+    {
+        private readonly Thermostat _thermostat;
+        public IncreaseTemperatureCommand(Thermostat thermostat) => _thermostat = thermostat;
+        public void Execute() => _thermostat.IncreaseTemperature();
+        public void Undo() => _thermostat.DecreaseTemperature();
+    }
+    public class RemoteControl
+    {
+        private readonly Stack<ICommand> _commandHistory = new Stack<ICommand>();
+
+        public void ExecuteCommand(ICommand command)
+        {
+            command.Execute();
+            _commandHistory.Push(command);
+        }
+        public void UndoLastCommand()
+        {
+            if (_commandHistory.Count > 0)
+            {
+                var command = _commandHistory.Pop();
+                command.Undo();
+            }
+            else
+            {
+                Console.WriteLine("Нет команд для отмены.");
+            }
+        }
+    }
+    class Program
+    {
+        static void Main()
+        {
+            Light light = new Light();
+            Door door = new Door();
+            Thermostat thermostat = new Thermostat();
+
+            ICommand lightOn = new LightOnCommand(light);
+            ICommand doorOpen = new DoorOpenCommand(door);
+            ICommand increaseTemp = new IncreaseTemperatureCommand(thermostat);
+
+            RemoteControl remote = new RemoteControl();
+            remote.ExecuteCommand(lightOn);
+            remote.ExecuteCommand(doorOpen);
+            remote.ExecuteCommand(increaseTemp);
+            remote.UndoLastCommand();
+        }
+    }
+}
