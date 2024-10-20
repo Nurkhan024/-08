@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+
+namespace MediatorPattern
+{
+    public interface IMediator
+    {
+        void SendMessage(string message, User user);
+        void AddUser(User user);
+    }
+    public class ChatRoom : IMediator
+    {
+        private List<User> _users = new List<User>();
+
+        public void AddUser(User user)
+        {
+            _users.Add(user);
+        }
+        public void SendMessage(string message, User user)
+        {
+            foreach (var u in _users)
+            {
+                if (u != user)
+                {
+                    u.Receive(message);
+                }
+            }
+        }
+    }
+    public class User
+    {
+        private readonly IMediator _mediator;
+        public string Name { get; }
+
+        public User(IMediator mediator, string name)
+        {
+            _mediator = mediator;
+            Name = name;
+        }
+        public void Send(string message)
+        {
+            Console.WriteLine($"{Name} отправляет: {message}");
+            _mediator.SendMessage(message, this);
+        }
+        public void Receive(string message)
+        {
+            Console.WriteLine($"{Name} получает: {message}");
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            ChatRoom chatRoom = new ChatRoom();
+
+            User nur = new User(chatRoom, "Нур");
+            User dias = new User(chatRoom, "Диас");
+            User beka = new User(chatRoom, "Бека");
+
+            chatRoom.AddUser(nur);
+            chatRoom.AddUser(dias);
+            chatRoom.AddUser(beka);
+
+            nur.Send("Всем привет!");
+            dias.Send("Привет, Нур!");
+        }
+    }
+}
